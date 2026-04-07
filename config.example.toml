@@ -1,0 +1,16 @@
+# sortiz configuration — copy to ~/.config/sortiz/config.toml
+#
+# Colors accept:
+#   hex values:    "#rrggbb"
+#   named colors:  black, red, green, yellow, blue, magenta, cyan, white,
+#                  gray, darkgray, lightred, lightgreen, lightyellow,
+#                  lightblue, lightmagenta, lightcyan
+#   terminal default: "default"
+
+[colors]
+bar        = "#4a9eff"   # default bar color
+comparing  = "#ffcc00"   # two bars being compared
+swapping   = "#ff4444"   # two bars being swapped
+sorted     = "#44ff88"   # bars confirmed in final position
+background = "default"   # fill color behind everything ("default" = transparent)
+text       = "#cccccc"   # algorithm name and status bar text
