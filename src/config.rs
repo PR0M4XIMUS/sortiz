@@ -103,10 +103,12 @@ fn config_path() -> Option<PathBuf> {
 }
 
 pub fn parse_color(s: &str) -> Color {
-    if s.starts_with('#') && s.len() == 7 {
-        let r = u8::from_str_radix(&s[1..3], 16).unwrap_or(255);
-        let g = u8::from_str_radix(&s[3..5], 16).unwrap_or(255);
-        let b = u8::from_str_radix(&s[5..7], 16).unwrap_or(255);
+    let bytes = s.as_bytes();
+    if bytes.first() == Some(&b'#') && bytes.len() == 7 && bytes[1..].iter().all(|b| b.is_ascii_hexdigit()) {
+        let parse = |hi: u8, lo: u8| u8::from_str_radix(std::str::from_utf8(&[hi, lo]).unwrap_or("ff"), 16).unwrap_or(255);
+        let r = parse(bytes[1], bytes[2]);
+        let g = parse(bytes[3], bytes[4]);
+        let b = parse(bytes[5], bytes[6]);
         return Color::Rgb(r, g, b);
     }
     match s.to_lowercase().as_str() {

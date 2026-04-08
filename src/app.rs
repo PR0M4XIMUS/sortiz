@@ -39,8 +39,18 @@ impl App {
             rng.gen_range(0..algos.len())
         };
 
+        const MAX_STEPS: usize = 100_000;
         let data = make_array(array_size);
-        let steps = (algos[algo_idx].generate_steps)(&data);
+        let mut steps = (algos[algo_idx].generate_steps)(&data);
+        if steps.len() > MAX_STEPS {
+            eprintln!(
+                "Warning: {} steps truncated to {} to avoid excessive memory use. \
+                 Try a smaller array size or a faster algorithm.",
+                steps.len(),
+                MAX_STEPS
+            );
+            steps.truncate(MAX_STEPS);
+        }
 
         App {
             algorithm_name: algos[algo_idx].name.to_string(),
@@ -57,6 +67,7 @@ impl App {
     }
 
     pub fn current_step(&self) -> &SortStep {
+        debug_assert!(!self.steps.is_empty(), "steps must never be empty");
         let idx = self.step_idx.min(self.steps.len().saturating_sub(1));
         &self.steps[idx]
     }
@@ -104,7 +115,7 @@ impl App {
     }
 
     pub fn speed_down(&mut self) {
-        self.speed_ms = (self.speed_ms * 2).min(2000);
+        self.speed_ms = (self.speed_ms * 2).min(5000);
     }
 
     pub fn is_done(&self) -> bool {
@@ -116,9 +127,19 @@ impl App {
     }
 
     fn load_algorithm(&mut self, idx: usize) {
+        const MAX_STEPS: usize = 100_000;
         let algos = all_algorithms();
         let data = make_array(self.array_size);
-        let steps = (algos[idx].generate_steps)(&data);
+        let mut steps = (algos[idx].generate_steps)(&data);
+        if steps.len() > MAX_STEPS {
+            eprintln!(
+                "Warning: {} steps truncated to {} to avoid excessive memory use. \
+                 Try a smaller array size or a faster algorithm.",
+                steps.len(),
+                MAX_STEPS
+            );
+            steps.truncate(MAX_STEPS);
+        }
         self.algo_idx = idx;
         self.algorithm_name = algos[idx].name.to_string();
         self.steps = steps;
