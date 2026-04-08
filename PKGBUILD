@@ -1,4 +1,6 @@
-# Maintainer: PR0M4XIMUS <your-email@example.com>
+# Maintainer: PR0M4XIMUS <pr0m4ximus at proton dot me>
+# SPDX-License-Identifier: 0BSD
+
 pkgname=sortiz-git
 pkgver=r5.7b21b16
 pkgrel=1
@@ -37,8 +39,8 @@ check() {
 
 package() {
     cd "$pkgname"
-    install -Dm755 target/release/sortiz    "$pkgdir/usr/bin/sortiz"
-    install -Dm644 LICENSE                   "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-    install -Dm644 README.md                 "$pkgdir/usr/share/doc/$pkgname/README.md"
-    install -Dm644 config.example.toml       "$pkgdir/usr/share/doc/$pkgname/config.example.toml"
+    install -Dm755 target/release/sortiz      "$pkgdir/usr/bin/sortiz"
+    install -Dm644 LICENSE                     "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 README.md                   "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 config.example.toml         "$pkgdir/usr/share/doc/$pkgname/config.example.toml"
 }
