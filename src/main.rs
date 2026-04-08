@@ -91,8 +91,9 @@ fn select_bar_style(
     loop {
         terminal.draw(|f| ui::render_menu(f, selected))?;
         if event::poll(Duration::from_millis(16))? {
-            if let Event::Key(key) = event::read()? {
-                match key.code {
+            match event::read()? {
+            Event::Resize(_, _) => { terminal.clear()?; }
+            Event::Key(key) => match key.code {
                     KeyCode::Up => {
                         if selected > 0 {
                             selected -= 1;
@@ -118,6 +119,7 @@ fn select_bar_style(
                     }
                     _ => {}
                 }
+            _ => {}
             }
         }
     }
@@ -137,8 +139,9 @@ fn run(
         terminal.draw(|f| ui::render(f, app, colors, bar_style, chars, display))?;
 
         if event::poll(Duration::from_millis(1))? {
-            if let Event::Key(key) = event::read()? {
-                match (key.code, key.modifiers) {
+            match event::read()? {
+                Event::Resize(_, _) => { terminal.clear()?; }
+                Event::Key(key) => match (key.code, key.modifiers) {
                     (KeyCode::Char('q'), _)
                     | (KeyCode::Char('c'), KeyModifiers::CONTROL)
                     | (KeyCode::Esc, _) => break,
@@ -158,6 +161,7 @@ fn run(
                     }
                     _ => {}
                 }
+                _ => {}
             }
         }
 

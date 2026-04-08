@@ -86,6 +86,12 @@ text       = "#cdd6f4"   # title and status text
 # Gap between bars in columns (0–5, default 1)
 # gap = 1
 
+# Show the algorithm name above the bars (default: true)
+# show_title = true
+
+# Show the step progress counter below the bars (default: true)
+# show_progress = true
+
 [chars]
 # Only the first character of each value is used.
 
@@ -214,6 +220,14 @@ Any single character works — letters, symbols, Unicode, whatever your terminal
    ```
 
 That's it — the CLI flag, loop mode, and rendering all pick it up automatically.
+
+---
+
+## Recent Changes
+
+- **Live resize** — the visualizer now reacts to terminal resize events instantly, making it fully compatible with tiling window managers (Hyprland, i3, sway, etc.). Drag a split at any time without artifacts.
+- **Centered bars** — leftover horizontal space is now distributed equally on both sides, keeping the bar group centered regardless of terminal width.
+- **Hide UI elements** — `show_title` and `show_progress` config options let you strip the algorithm label and/or step counter for a cleaner, distraction-free view.
 
 ---
 

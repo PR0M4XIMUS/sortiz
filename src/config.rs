@@ -67,6 +67,10 @@ pub struct DisplayConfig {
     pub default_style: Option<String>,
     /// Columns of space between bars. Clamped to 0–5 at parse time.
     pub gap: Option<u8>,
+    /// Show the algorithm name above the bars (default: true).
+    pub show_title: Option<bool>,
+    /// Show the step progress counter below the bars (default: true).
+    pub show_progress: Option<bool>,
 }
 
 /// Resolved display settings.
@@ -75,6 +79,8 @@ pub struct ParsedDisplay {
     /// `None` = show the startup menu; `Some(style)` = go straight to that style.
     pub default_style: Option<BarStyle>,
     pub gap: usize,
+    pub show_title: bool,
+    pub show_progress: bool,
 }
 
 // ── Chars ─────────────────────────────────────────────────────────────────────
@@ -163,7 +169,9 @@ impl Config {
         let gap = self.display.gap
             .map(|g| (g as usize).clamp(0, 5))
             .unwrap_or(1);
-        ParsedDisplay { default_style, gap }
+        let show_title = self.display.show_title.unwrap_or(true);
+        let show_progress = self.display.show_progress.unwrap_or(true);
+        ParsedDisplay { default_style, gap, show_title, show_progress }
     }
 
     pub fn chars(&self) -> ParsedChars {

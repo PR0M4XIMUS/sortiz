@@ -92,22 +92,28 @@ pub fn render(
         );
     }
 
+    let mut constraints = Vec::with_capacity(3);
+    if display.show_title    { constraints.push(Constraint::Length(1)); }
+    constraints.push(Constraint::Min(5));
+    if display.show_progress { constraints.push(Constraint::Length(1)); }
+
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Length(1), // algorithm name
-            Constraint::Min(5),    // bars
-            Constraint::Length(1), // minimal state
-        ])
+        .constraints(constraints)
         .split(area);
 
+    let mut idx = 0usize;
+
     // ── Title ─────────────────────────────────────────────────────────────────
-    frame.render_widget(
-        Paragraph::new(app.algorithm_name.as_str())
-            .style(Style::default().fg(colors.text))
-            .alignment(Alignment::Center),
-        chunks[0],
-    );
+    if display.show_title {
+        frame.render_widget(
+            Paragraph::new(app.algorithm_name.as_str())
+                .style(Style::default().fg(colors.text))
+                .alignment(Alignment::Center),
+            chunks[idx],
+        );
+        idx += 1;
+    }
 
     // ── Bars ──────────────────────────────────────────────────────────────────
     frame.render_widget(
@@ -119,24 +125,27 @@ pub fn render(
             chars,
             gap: display.gap,
         },
-        chunks[1],
+        chunks[idx],
     );
+    idx += 1;
 
     // ── Minimal status (no keyboard hints) ────────────────────────────────────
-    let (current, total) = app.progress();
-    let status = if app.paused {
-        format!("PAUSED  ·  {} / {}", current, total)
-    } else if app.is_done() {
-        "DONE".to_string()
-    } else {
-        format!("{} / {}", current, total)
-    };
-    frame.render_widget(
-        Paragraph::new(status)
-            .style(Style::default().fg(colors.text))
-            .alignment(Alignment::Center),
-        chunks[2],
-    );
+    if display.show_progress {
+        let (current, total) = app.progress();
+        let status = if app.paused {
+            format!("PAUSED  ·  {} / {}", current, total)
+        } else if app.is_done() {
+            "DONE".to_string()
+        } else {
+            format!("{} / {}", current, total)
+        };
+        frame.render_widget(
+            Paragraph::new(status)
+                .style(Style::default().fg(colors.text))
+                .alignment(Alignment::Center),
+            chunks[idx],
+        );
+    }
 }
 
 // ── Custom bar renderer ───────────────────────────────────────────────────────
@@ -168,10 +177,11 @@ impl Widget for SortBars<'_> {
             (1usize, 0usize)
         } else {
             let try_bw = w.saturating_sub((n - 1) * config_gap) / n;
-            if try_bw == 0 {
-                (1usize, 0usize)
+            if try_bw >= 1 {
+                (try_bw, config_gap)
             } else {
-                (try_bw.max(1), config_gap)
+                // Gap doesn't fit — drop it and spread bars across the full width.
+                (w / n, 0usize)
             }
         };
 
@@ -183,8 +193,12 @@ impl Widget for SortBars<'_> {
 
         let max = self.max.max(1) as f64;
 
+        // Center the bar group: compute left padding so leftover space is split evenly.
+        let used = n * bar_width + n.saturating_sub(1) * gap;
+        let x_pad = w.saturating_sub(used) / 2;
+
         for (i, &val) in self.step.data.iter().enumerate() {
-            let x_off = i * (bar_width + gap);
+            let x_off = x_pad + i * (bar_width + gap);
             if x_off >= w {
                 break;
             }

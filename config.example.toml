@@ -31,6 +31,12 @@ text       = "#cdd6f4"   # title and status bar text   (catppuccin text)
 # Columns of empty space between bars. Range: 0–5. Default: 1.
 # gap = 1
 
+# Show the algorithm name above the bars. Default: true.
+# show_title = true
+
+# Show the step counter below the bars. Default: true.
+# show_progress = true
+
 # ── Bar characters ────────────────────────────────────────────────────────────
 # Only the first character of each value is used.
 # This lets you build completely custom bar styles.
