@@ -5,7 +5,7 @@ mod ui;
 
 use app::App;
 use clap::Parser;
-use config::Config;
+use config::{BarStyle, Config};
 use crossterm::{
     event::{self, Event, KeyCode, KeyModifiers},
     execute,
@@ -50,11 +50,11 @@ fn main() -> anyhow::Result<()> {
         None => Config::load(),
     };
     let colors = config.colors();
+    let display = config.display();
+    let chars = config.chars();
 
     let array_size = cli.array_size.clamp(5, 500);
     let speed = cli.speed.clamp(5, 5000);
-
-    let mut app = App::new(array_size, speed, cli.algorithm.as_deref(), cli.loop_mode);
 
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -62,7 +62,20 @@ fn main() -> anyhow::Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let result = run(&mut terminal, &mut app, &colors);
+    // If [display] default_style is set in config, skip the startup menu.
+    let bar_style_result: anyhow::Result<Option<BarStyle>> = match display.default_style {
+        Some(style) => Ok(Some(style)),
+        None => select_bar_style(&mut terminal),
+    };
+
+    let result = match bar_style_result {
+        Ok(Some(style)) => {
+            let mut app = App::new(array_size, speed, cli.algorithm.as_deref(), cli.loop_mode);
+            run(&mut terminal, &mut app, &colors, style, &chars, &display)
+        }
+        Ok(None) => Ok(()), // user quit from menu
+        Err(e) => Err(e),
+    };
 
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
@@ -71,17 +84,58 @@ fn main() -> anyhow::Result<()> {
     result
 }
 
+fn select_bar_style(
+    terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+) -> anyhow::Result<Option<BarStyle>> {
+    let mut selected = 0usize;
+    loop {
+        terminal.draw(|f| ui::render_menu(f, selected))?;
+        if event::poll(Duration::from_millis(16))? {
+            if let Event::Key(key) = event::read()? {
+                match key.code {
+                    KeyCode::Up => {
+                        if selected > 0 {
+                            selected -= 1;
+                        }
+                    }
+                    KeyCode::Down => {
+                        if selected < 1 {
+                            selected += 1;
+                        }
+                    }
+                    KeyCode::Char('1') => return Ok(Some(BarStyle::Block)),
+                    KeyCode::Char('2') => return Ok(Some(BarStyle::Ascii)),
+                    KeyCode::Enter => {
+                        return Ok(Some(if selected == 0 {
+                            BarStyle::Block
+                        } else {
+                            BarStyle::Ascii
+                        }));
+                    }
+                    KeyCode::Char('q') | KeyCode::Esc => return Ok(None),
+                    KeyCode::Char('c') if key.modifiers == KeyModifiers::CONTROL => {
+                        return Ok(None);
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+}
+
 fn run(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
     colors: &config::ParsedColors,
+    bar_style: BarStyle,
+    chars: &config::ParsedChars,
+    display: &config::ParsedDisplay,
 ) -> anyhow::Result<()> {
     let mut last_step = Instant::now();
 
     loop {
-        terminal.draw(|f| ui::render(f, app, colors))?;
+        terminal.draw(|f| ui::render(f, app, colors, bar_style, chars, display))?;
 
-        // Non-blocking input poll (1 ms)
         if event::poll(Duration::from_millis(1))? {
             if let Event::Key(key) = event::read()? {
                 match (key.code, key.modifiers) {

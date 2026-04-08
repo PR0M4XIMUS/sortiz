@@ -1,16 +1,111 @@
-# sortiz configuration — copy to ~/.config/sortiz/config.toml
+# sortiz configuration
+# Copy this file to ~/.config/sortiz/config.toml and edit as desired.
+# All fields are optional — remove a line to use the built-in default.
 #
-# Colors accept:
-#   hex values:    "#rrggbb"
-#   named colors:  black, red, green, yellow, blue, magenta, cyan, white,
-#                  gray, darkgray, lightred, lightgreen, lightyellow,
-#                  lightblue, lightmagenta, lightcyan
-#   terminal default: "default"
+# Color formats accepted:
+#   hex:     "#rrggbb"   (e.g. "#ff5555")
+#   named:   black, red, green, yellow, blue, magenta, cyan, white,
+#            gray, darkgray, lightred, lightgreen, lightyellow,
+#            lightblue, lightmagenta, lightcyan
+#   transparent: "default"  (lets the terminal background show through)
+
+# ── Colors ────────────────────────────────────────────────────────────────────
 
 [colors]
-bar        = "#4a9eff"   # default bar color
-comparing  = "#ffcc00"   # two bars being compared
-swapping   = "#ff4444"   # two bars being swapped
-sorted     = "#44ff88"   # bars confirmed in final position
-background = "default"   # fill color behind everything ("default" = transparent)
-text       = "#cccccc"   # algorithm name and status bar text
+bar        = "#89b4fa"   # idle bar color              (catppuccin blue)
+comparing  = "#fab387"   # two bars being compared     (catppuccin peach)
+swapping   = "#f38ba8"   # two bars being swapped      (catppuccin red)
+sorted     = "#a6e3a1"   # bars confirmed in place     (catppuccin green)
+background = "default"   # background fill             ("default" = transparent)
+text       = "#cdd6f4"   # title and status bar text   (catppuccin text)
+
+# ── Display ───────────────────────────────────────────────────────────────────
+
+[display]
+# Skip the startup menu and go straight to a bar style.
+# Options: "block"  (Unicode block characters with smooth fractional tops)
+#          "ascii"  (outlined bars using box-drawing characters)
+# Comment out or remove to show the selection menu on startup.
+# default_style = "block"
+
+# Columns of empty space between bars. Range: 0–5. Default: 1.
+# gap = 1
+
+# ── Bar characters ────────────────────────────────────────────────────────────
+# Only the first character of each value is used.
+# This lets you build completely custom bar styles.
+
+[chars]
+# Block mode: single character used to fill the entire bar body.
+# block_fill = "█"
+
+# ASCII mode: characters used to draw outlined bars.
+# Top cap row:
+# ascii_top_left   = "╔"
+# ascii_top_mid    = "═"
+# ascii_top_right  = "╗"
+# Body rows:
+# ascii_body_left  = "║"
+# ascii_body_fill  = "█"
+# ascii_body_right = "║"
+# Single-column bars (when bar width is exactly 1):
+# ascii_single_top  = "╤"
+# ascii_single_body = "│"
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# EXAMPLE THEMES — uncomment one [colors] block and replace the one above
+# ════════════════════════════════════════════════════════════════════════════
+
+# ── Dracula ───────────────────────────────────────────────────────────────────
+# [colors]
+# bar        = "#ff79c6"
+# comparing  = "#ffb86c"
+# swapping   = "#ff5555"
+# sorted     = "#50fa7b"
+# background = "#282a36"
+# text       = "#f8f8f2"
+
+# ── Nord ──────────────────────────────────────────────────────────────────────
+# [colors]
+# bar        = "#81a1c1"
+# comparing  = "#ebcb8b"
+# swapping   = "#bf616a"
+# sorted     = "#a3be8c"
+# background = "#2e3440"
+# text       = "#d8dee9"
+
+# ── Gruvbox ───────────────────────────────────────────────────────────────────
+# [colors]
+# bar        = "#83a598"
+# comparing  = "#fabd2f"
+# swapping   = "#fb4934"
+# sorted     = "#b8bb26"
+# background = "#282828"
+# text       = "#ebdbb2"
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# EXAMPLE CUSTOM CHAR STYLES
+# ════════════════════════════════════════════════════════════════════════════
+
+# ── Minimal ASCII (pure +/-/| look) ──────────────────────────────────────────
+# [display]
+# default_style = "ascii"
+#
+# [chars]
+# ascii_top_left   = "+"
+# ascii_top_mid    = "-"
+# ascii_top_right  = "+"
+# ascii_body_left  = "|"
+# ascii_body_fill  = "#"
+# ascii_body_right = "|"
+# ascii_single_top  = "+"
+# ascii_single_body = "|"
+
+# ── Hash bars (dense fill, block mode) ───────────────────────────────────────
+# [display]
+# default_style = "block"
+#
+# [chars]
+# block_fill = "#"
