@@ -13,7 +13,7 @@ pub fn steps(initial: &[usize]) -> Vec<SortStep> {
     steps
 }
 
-fn merge_sort(data: &mut Vec<usize>, left: usize, right: usize, steps: &mut Vec<SortStep>) {
+fn merge_sort(data: &mut [usize], left: usize, right: usize, steps: &mut Vec<SortStep>) {
     if right - left <= 1 {
         return;
     }
@@ -24,7 +24,7 @@ fn merge_sort(data: &mut Vec<usize>, left: usize, right: usize, steps: &mut Vec<
 }
 
 fn merge(
-    data: &mut Vec<usize>,
+    data: &mut [usize],
     left: usize,
     mid: usize,
     right: usize,
@@ -37,7 +37,7 @@ fn merge(
     let mut k = left;
 
     while i < left_part.len() && j < right_part.len() {
-        let mut step = SortStep::new(data.clone());
+        let mut step = SortStep::new(data.to_owned());
         step.comparing = vec![left + i, mid + j];
         steps.push(step);
 
@@ -49,7 +49,7 @@ fn merge(
             j += 1;
         }
 
-        let mut step = SortStep::new(data.clone());
+        let mut step = SortStep::new(data.to_owned());
         step.swapping = vec![k];
         steps.push(step);
         k += 1;
@@ -57,7 +57,7 @@ fn merge(
 
     while i < left_part.len() {
         data[k] = left_part[i];
-        let mut step = SortStep::new(data.clone());
+        let mut step = SortStep::new(data.to_owned());
         step.swapping = vec![k];
         steps.push(step);
         i += 1;
@@ -66,7 +66,7 @@ fn merge(
 
     while j < right_part.len() {
         data[k] = right_part[j];
-        let mut step = SortStep::new(data.clone());
+        let mut step = SortStep::new(data.to_owned());
         step.swapping = vec![k];
         steps.push(step);
         j += 1;

@@ -95,9 +95,7 @@ fn select_bar_style(
             Event::Resize(_, _) => { terminal.clear()?; }
             Event::Key(key) => match key.code {
                     KeyCode::Up => {
-                        if selected > 0 {
-                            selected -= 1;
-                        }
+                        selected = selected.saturating_sub(1);
                     }
                     KeyCode::Down => {
                         if selected < 1 {

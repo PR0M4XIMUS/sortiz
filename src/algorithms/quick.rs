@@ -15,7 +15,7 @@ pub fn steps(initial: &[usize]) -> Vec<SortStep> {
     steps
 }
 
-fn quick_sort(data: &mut Vec<usize>, low: usize, high: usize, steps: &mut Vec<SortStep>) {
+fn quick_sort(data: &mut [usize], low: usize, high: usize, steps: &mut Vec<SortStep>) {
     if low < high {
         let pivot = partition(data, low, high, steps);
         if pivot > 0 {
@@ -26,7 +26,7 @@ fn quick_sort(data: &mut Vec<usize>, low: usize, high: usize, steps: &mut Vec<So
 }
 
 fn partition(
-    data: &mut Vec<usize>,
+    data: &mut [usize],
     low: usize,
     high: usize,
     steps: &mut Vec<SortStep>,
@@ -35,14 +35,14 @@ fn partition(
     let mut i = low;
 
     for j in low..high {
-        let mut step = SortStep::new(data.clone());
+        let mut step = SortStep::new(data.to_owned());
         step.comparing = vec![j, high];
         steps.push(step);
 
         if data[j] <= pivot_val {
             if i != j {
                 data.swap(i, j);
-                let mut step = SortStep::new(data.clone());
+                let mut step = SortStep::new(data.to_owned());
                 step.swapping = vec![i, j];
                 steps.push(step);
             }
@@ -51,7 +51,7 @@ fn partition(
     }
 
     data.swap(i, high);
-    let mut step = SortStep::new(data.clone());
+    let mut step = SortStep::new(data.to_owned());
     step.swapping = vec![i, high];
     step.sorted = vec![i];
     steps.push(step);
