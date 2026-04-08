@@ -2,8 +2,12 @@
 name = "sortiz"
 version = "0.1.0"
 edition = "2021"
-description = "A TUI sorting algorithm visualizer"
+description = "A TUI sorting algorithm visualizer with smooth animations and full theme support"
 license = "MIT"
+repository = "https://github.com/PR0M4XIMUS/sortiz"
+homepage = "https://github.com/PR0M4XIMUS/sortiz"
+keywords = ["tui", "sorting", "visualizer", "terminal", "algorithm"]
+categories = ["command-line-utilities", "visualization"]
 
 [[bin]]
 name = "sortiz"

@@ -6,13 +6,22 @@ A terminal UI sorting algorithm visualizer with smooth animations, multiple algo
 
 ## Installation
 
-**Build from source** (requires [Rust](https://rustup.rs)):
+### Arch Linux (AUR)
+
+```bash
+paru -S sortiz-git
+# or
+yay -S sortiz-git
+```
+
+### Build from source
+
+Requires [Rust](https://rustup.rs) (stable):
 
 ```bash
 git clone https://github.com/PR0M4XIMUS/sortiz.git
 cd sortiz
 cargo build --release
-# Copy the binary somewhere on your PATH:
 cp target/release/sortiz ~/.local/bin/
 ```
 

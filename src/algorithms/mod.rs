@@ -77,3 +77,77 @@ pub fn all_algorithms() -> Vec<Algorithm> {
         },
     ]
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn is_sorted(v: &[usize]) -> bool {
+        v.windows(2).all(|w| w[0] <= w[1])
+    }
+
+    fn final_state(algo: fn(&[usize]) -> Vec<SortStep>, input: &[usize]) -> Vec<usize> {
+        algo(input).last().expect("algorithm produced no steps").data.clone()
+    }
+
+    const ALGOS: &[(&str, fn(&[usize]) -> Vec<SortStep>)] = &[
+        ("bubble",    bubble::steps),
+        ("insertion", insertion::steps),
+        ("selection", selection::steps),
+        ("merge",     merge::steps),
+        ("quick",     quick::steps),
+        ("heap",      heap::steps),
+        ("shell",     shell::steps),
+    ];
+
+    #[test]
+    fn all_sort_correctly() {
+        let cases: &[&[usize]] = &[
+            &[],                               // empty
+            &[1],                              // single element
+            &[2, 1],                           // two elements reversed
+            &[1, 2],                           // two elements already sorted
+            &[5, 3, 1, 4, 2],                 // small shuffled
+            &[9, 8, 7, 6, 5, 4, 3, 2, 1],    // fully reversed
+            &[1, 2, 3, 4, 5, 6, 7, 8, 9],    // already sorted
+            &[3, 1, 4, 1, 5, 9, 2, 6, 5, 3], // duplicates
+            &[1, 1, 1, 1, 1],                 // all equal
+        ];
+
+        for &(name, algo) in ALGOS {
+            for &case in cases {
+                let result = final_state(algo, case);
+                let mut expected = case.to_vec();
+                expected.sort_unstable();
+                assert!(
+                    is_sorted(&result) && result == expected,
+                    "{name} failed on input {case:?}\n  got:      {result:?}\n  expected: {expected:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn steps_never_empty() {
+        let data: Vec<usize> = (1..=10).rev().collect();
+        for &(name, algo) in ALGOS {
+            let steps = algo(&data);
+            assert!(!steps.is_empty(), "{name} returned empty steps");
+        }
+    }
+
+    #[test]
+    fn each_step_has_correct_length() {
+        let data: Vec<usize> = vec![4, 2, 7, 1, 9, 3];
+        let n = data.len();
+        for &(name, algo) in ALGOS {
+            for (i, step) in algo(&data).iter().enumerate() {
+                assert_eq!(
+                    step.data.len(), n,
+                    "{name} step {i}: data length changed from {n} to {}",
+                    step.data.len()
+                );
+            }
+        }
+    }
+}

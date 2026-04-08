@@ -5,9 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-cargo build          # Debug build (always works)
-cargo build --release  # Optimized — crashes on Arch Linux rustc 1.94.1 (SIGSEGV in codegen); use debug build there
+cargo build          # Debug build
+cargo build --release  # Optimized binary (opt-level=2, codegen-units=1 in Cargo.toml)
 cargo run -- [OPTIONS]
+cargo test           # Runs algorithm correctness tests (3 tests covering all 7 algorithms)
 cargo clippy
 cargo fmt
 ```

@@ -1,6 +1,6 @@
 # Maintainer: PR0M4XIMUS <your-email@example.com>
 pkgname=sortiz-git
-pkgver=r3.54d69b0
+pkgver=r5.7b21b16
 pkgrel=1
 pkgdesc="TUI sorting algorithm visualizer with smooth animations and full theme support"
 arch=('x86_64' 'aarch64')
@@ -25,15 +25,20 @@ prepare() {
 
 build() {
     cd "$pkgname"
-    export RUSTUP_TOOLCHAIN=stable
     export CARGO_TARGET_DIR=target
     cargo build --frozen --release
 }
 
+check() {
+    cd "$pkgname"
+    export CARGO_TARGET_DIR=target
+    cargo test --frozen
+}
+
 package() {
     cd "$pkgname"
-    install -Dm755 target/release/sortiz "$pkgdir/usr/bin/sortiz"
-    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
-    install -Dm644 config.example.toml "$pkgdir/usr/share/doc/$pkgname/config.example.toml"
+    install -Dm755 target/release/sortiz    "$pkgdir/usr/bin/sortiz"
+    install -Dm644 LICENSE                   "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 README.md                 "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 config.example.toml       "$pkgdir/usr/share/doc/$pkgname/config.example.toml"
 }
