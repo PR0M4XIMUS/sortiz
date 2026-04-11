@@ -28,12 +28,16 @@ prepare() {
 build() {
     cd "$pkgname"
     export CARGO_TARGET_DIR=target
+    # Clear RUSTFLAGS: Arch's makepkg injects -C debuginfo=2 -C force-frame-pointers=yes
+    # which triggers a rustc 1.94.1 SIGSEGV during trait monomorphization.
+    export RUSTFLAGS=""
     cargo build --frozen --release
 }
 
 check() {
     cd "$pkgname"
     export CARGO_TARGET_DIR=target
+    export RUSTFLAGS=""
     cargo test --frozen
 }
 
