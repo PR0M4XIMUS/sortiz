@@ -197,13 +197,15 @@ impl Widget for SortBars<'_> {
         let used = n * bar_width + n.saturating_sub(1) * gap;
         let x_pad = w.saturating_sub(used) / 2;
 
+        let color_map = build_color_map(n, self.step, self.colors);
+
         for (i, &val) in self.step.data.iter().enumerate() {
             let x_off = x_pad + i * (bar_width + gap);
             if x_off >= w {
                 break;
             }
             let bw = bar_width.min(w - x_off);
-            let color = bar_color(i, self.step, self.colors);
+            let color = color_map[i];
 
             // Exact bar height in cells + fractional remainder.
             let bar_h_f = val as f64 * h as f64 / max;
@@ -274,14 +276,22 @@ fn ascii_char(col: usize, bw: usize, is_top: bool, chars: &ParsedChars) -> char 
     }
 }
 
-fn bar_color(idx: usize, step: &SortStep, colors: &ParsedColors) -> Color {
-    if step.swapping.contains(&idx) {
-        colors.swapping
-    } else if step.comparing.contains(&idx) {
-        colors.comparing
-    } else if step.sorted.contains(&idx) {
-        colors.sorted
-    } else {
-        colors.bar
+fn build_color_map(n: usize, step: &SortStep, colors: &ParsedColors) -> Vec<Color> {
+    let mut map = vec![colors.bar; n];
+    for &i in &step.sorted {
+        if i < n {
+            map[i] = colors.sorted;
+        }
     }
+    for &i in &step.comparing {
+        if i < n {
+            map[i] = colors.comparing;
+        }
+    }
+    for &i in &step.swapping {
+        if i < n {
+            map[i] = colors.swapping;
+        }
+    }
+    map
 }

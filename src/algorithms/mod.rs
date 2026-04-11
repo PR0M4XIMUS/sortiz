@@ -171,10 +171,17 @@ mod tests {
 
     #[test]
     fn steps_never_empty() {
-        let data: Vec<usize> = (1..=10).rev().collect();
+        let cases: &[&[usize]] = &[
+            &[],
+            &[1],
+            &[2, 1],
+            &(1usize..=10).rev().collect::<Vec<_>>(),
+        ];
         for &(name, algo) in ALGOS {
-            let steps = algo(&data);
-            assert!(!steps.is_empty(), "{name} returned empty steps");
+            for &case in cases {
+                let steps = algo(case);
+                assert!(!steps.is_empty(), "{name} returned empty steps for input {case:?}");
+            }
         }
     }
 
