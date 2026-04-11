@@ -73,6 +73,11 @@ pub fn steps(initial: &[usize]) -> Vec<SortStep> {
         // Rotate until sorted_target[i] is at position i, then slow-spin a
         // short extra burst so the win feels earned, not instant.
         if remaining > 1 {
+            debug_assert!(
+                data[i..].contains(&sorted_target[i]),
+                "roulette: sorted_target[{i}]={} not found in remaining slice — data and sorted_target have diverged",
+                sorted_target[i]
+            );
             // Spin until the correct value is one step away from the front.
             for _ in 0..remaining * 2 {
                 // Check if rotating once more would land the winner.
