@@ -3,6 +3,7 @@ pub mod heap;
 pub mod insertion;
 pub mod merge;
 pub mod quick;
+pub mod roulette;
 pub mod selection;
 pub mod shell;
 
@@ -75,6 +76,11 @@ pub fn all_algorithms() -> Vec<Algorithm> {
             key: "shell",
             generate_steps: shell::steps,
         },
+        Algorithm {
+            name: "Roulette Sort",
+            key: "roulette",
+            generate_steps: roulette::steps,
+        },
     ]
 }
 
@@ -98,6 +104,7 @@ mod tests {
         ("quick",     quick::steps),
         ("heap",      heap::steps),
         ("shell",     shell::steps),
+        ("roulette",  roulette::steps),
     ];
 
     #[test]

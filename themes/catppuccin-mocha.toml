@@ -1,0 +1,16 @@
+# Catppuccin Mocha theme for sortiz
+# https://github.com/catppuccin/catppuccin
+
+[colors]
+bar        = "#cdd6f4"  # text
+comparing  = "#89b4fa"  # blue
+swapping   = "#f38ba8"  # red
+sorted     = "#a6e3a1"  # green
+background = "#1e1e2e"  # base
+text       = "#cdd6f4"  # text
+
+[display]
+default_style = "block"
+gap           = 1
+show_title    = true
+show_progress = true

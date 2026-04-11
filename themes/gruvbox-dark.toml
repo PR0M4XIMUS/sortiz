@@ -1,0 +1,16 @@
+# Gruvbox Dark theme for sortiz
+# https://github.com/morhetz/gruvbox
+
+[colors]
+bar        = "#ebdbb2"  # fg
+comparing  = "#83a598"  # aqua
+swapping   = "#fb4934"  # red
+sorted     = "#b8bb26"  # green
+background = "#282828"  # bg
+text       = "#ebdbb2"  # fg
+
+[display]
+default_style = "block"
+gap           = 1
+show_title    = true
+show_progress = true
