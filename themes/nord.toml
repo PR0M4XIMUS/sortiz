@@ -1,0 +1,16 @@
+# Nord theme for sortiz
+# https://www.nordtheme.com
+
+[colors]
+bar        = "#d8dee9"  # nord4
+comparing  = "#81a1c1"  # nord9
+swapping   = "#bf616a"  # nord11
+sorted     = "#a3be8c"  # nord14
+background = "#2e3440"  # nord0
+text       = "#eceff4"  # nord6
+
+[display]
+default_style = "block"
+gap           = 1
+show_title    = true
+show_progress = true

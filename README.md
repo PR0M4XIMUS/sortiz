@@ -41,7 +41,7 @@ sortiz [OPTIONS]
 | `-c, --config <PATH>` | Path to a custom config file | `~/.config/sortiz/config.toml` |
 | `-l, --loop-mode` | Cycle through algorithms automatically | off |
 
-**Available algorithms:** `bubble` · `insertion` · `selection` · `merge` · `quick` · `heap` · `shell`
+**Available algorithms:** `bubble` · `insertion` · `selection` · `merge` · `quick` · `heap` · `shell` · `roulette`
 
 **Examples:**
 
@@ -51,6 +51,21 @@ sortiz --algorithm quick -n 100 -s 25  # quick sort, 100 bars, fast
 sortiz --loop                           # cycle through all algorithms
 sortiz -c ~/my-theme.toml              # use a custom config file
 ```
+
+---
+
+## Algorithms
+
+| Name | Key | How it works |
+|------|-----|--------------|
+| Bubble Sort | `bubble` | Repeatedly steps through the list comparing adjacent pairs and swapping them if out of order. Each pass bubbles the largest unsorted element to the end. |
+| Insertion Sort | `insertion` | Builds the sorted list one element at a time by taking each element and shifting it left until it's in the correct position. |
+| Selection Sort | `selection` | Finds the minimum element from the unsorted portion and swaps it into the next sorted position. |
+| Merge Sort | `merge` | Divides the array in half recursively, sorts each half, then merges them back together in order. |
+| Quick Sort | `quick` | Picks a pivot, partitions elements smaller/larger than the pivot to either side, then recurses on each partition. |
+| Heap Sort | `heap` | Builds a max-heap from the array, then repeatedly extracts the maximum to the end, shrinking the heap each time. |
+| Shell Sort | `shell` | A generalization of insertion sort that starts by sorting elements far apart, then progressively reduces the gap until it becomes a standard insertion sort. |
+| Roulette Sort | `roulette` | Goes index by index and spins (shuffles) the remaining unsorted elements randomly. After each spin it checks whether the right value landed in place — some spins fail for drama, but the wheel is secretly rigged so it always sorts in the end. |
 
 ---
 
@@ -122,19 +137,54 @@ text       = "#cdd6f4"   # title and status text
 
 ## Themes
 
-Copy a `[colors]` block into your config file:
+Ready-made theme files live in the [`themes/`](themes/) directory. To apply one:
+
+```bash
+mkdir -p ~/.config/sortiz
+cp themes/catppuccin-mocha.toml ~/.config/sortiz/config.toml
+```
+
+Or paste a `[colors]` block directly into your existing config.
 
 <details>
-<summary><strong>Catppuccin Mocha</strong> (default)</summary>
+<summary><strong>Catppuccin Mocha</strong></summary>
 
 ```toml
 [colors]
-bar        = "#89b4fa"
-comparing  = "#fab387"
+bar        = "#cdd6f4"
+comparing  = "#89b4fa"
 swapping   = "#f38ba8"
 sorted     = "#a6e3a1"
-background = "default"
+background = "#1e1e2e"
 text       = "#cdd6f4"
+```
+</details>
+
+<details>
+<summary><strong>Gruvbox Dark</strong></summary>
+
+```toml
+[colors]
+bar        = "#ebdbb2"
+comparing  = "#83a598"
+swapping   = "#fb4934"
+sorted     = "#b8bb26"
+background = "#282828"
+text       = "#ebdbb2"
+```
+</details>
+
+<details>
+<summary><strong>Nord</strong></summary>
+
+```toml
+[colors]
+bar        = "#d8dee9"
+comparing  = "#81a1c1"
+swapping   = "#bf616a"
+sorted     = "#a3be8c"
+background = "#2e3440"
+text       = "#eceff4"
 ```
 </details>
 
@@ -149,34 +199,6 @@ swapping   = "#ff5555"
 sorted     = "#50fa7b"
 background = "#282a36"
 text       = "#f8f8f2"
-```
-</details>
-
-<details>
-<summary><strong>Nord</strong></summary>
-
-```toml
-[colors]
-bar        = "#81a1c1"
-comparing  = "#ebcb8b"
-swapping   = "#bf616a"
-sorted     = "#a3be8c"
-background = "#2e3440"
-text       = "#d8dee9"
-```
-</details>
-
-<details>
-<summary><strong>Gruvbox</strong></summary>
-
-```toml
-[colors]
-bar        = "#83a598"
-comparing  = "#fabd2f"
-swapping   = "#fb4934"
-sorted     = "#b8bb26"
-background = "#282828"
-text       = "#ebdbb2"
 ```
 </details>
 
@@ -234,9 +256,11 @@ That's it — the CLI flag, loop mode, and rendering all pick it up automaticall
 
 ## Recent Changes
 
-- **Live resize** — the visualizer now reacts to terminal resize events instantly, making it fully compatible with tiling window managers (Hyprland, i3, sway, etc.). Drag a split at any time without artifacts.
-- **Centered bars** — leftover horizontal space is now distributed equally on both sides, keeping the bar group centered regardless of terminal width.
-- **Hide UI elements** — `show_title` and `show_progress` config options let you strip the algorithm label and/or step counter for a cleaner, distraction-free view.
+- **Roulette Sort** — a new novelty algorithm that spins (shuffles) the remaining unsorted elements at each position. The wheel is secretly rigged: it fails dramatically a few times before guaranteeing a win, so it always finishes but keeps you guessing.
+- **Theme files** — ready-made Catppuccin Mocha, Gruvbox Dark, and Nord configs in the `themes/` directory, ready to copy into `~/.config/sortiz/`.
+- **Live resize** — the visualizer now reacts to terminal resize events instantly, making it fully compatible with tiling window managers (Hyprland, i3, sway, etc.).
+- **Centered bars** — leftover horizontal space is distributed equally on both sides.
+- **Hide UI elements** — `show_title` and `show_progress` config options let you strip the algorithm label and/or step counter.
 
 ---
 
