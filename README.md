@@ -66,6 +66,11 @@ sortiz -c ~/my-theme.toml              # use a custom config file
 | Heap Sort | `heap` | Builds a max-heap from the array, then repeatedly extracts the maximum to the end, shrinking the heap each time. |
 | Shell Sort | `shell` | A generalization of insertion sort that starts by sorting elements far apart, then progressively reduces the gap until it becomes a standard insertion sort. |
 | Roulette Sort | `roulette` | Goes index by index and spins (shuffles) the remaining unsorted elements randomly. After each spin it checks whether the right value landed in place — some spins fail for drama, but the wheel is secretly rigged so it always sorts in the end. |
+| Cocktail Shaker Sort | `cocktail` | Bidirectional bubble sort — sweeps left→right then right→left each pass, closing the sorted region from both ends simultaneously. |
+| Comb Sort | `comb` | Like bubble sort but starts comparing elements far apart (gap = n/1.3) and shrinks the gap each pass until it becomes a standard bubble-sort polish. |
+| Pancake Sort | `pancake` | Sorts by flipping prefixes: finds the largest unsorted element, flips the prefix to bring it to the front, then flips again to drop it into place — each flip animated bar by bar. |
+| Gnome Sort | `gnome` | A garden gnome moves forward until it finds an out-of-order pair, swaps them, then steps back one position to recheck — wandering erratically until everything is in order. |
+| Stalin Sort | `stalin` | Scans left to right and eliminates any element that isn't in order. Eliminated elements are quietly re-integrated at the end once the economy collapses. |
 
 ---
 

@@ -1,11 +1,16 @@
 pub mod bubble;
+pub mod cocktail;
+pub mod comb;
+pub mod gnome;
 pub mod heap;
 pub mod insertion;
 pub mod merge;
+pub mod pancake;
 pub mod quick;
 pub mod roulette;
 pub mod selection;
 pub mod shell;
+pub mod stalin;
 
 /// Represents one frame of animation: the current array state plus
 /// which indices are being compared, swapped, or confirmed sorted.
@@ -81,6 +86,31 @@ pub fn all_algorithms() -> Vec<Algorithm> {
             key: "roulette",
             generate_steps: roulette::steps,
         },
+        Algorithm {
+            name: "Cocktail Shaker Sort",
+            key: "cocktail",
+            generate_steps: cocktail::steps,
+        },
+        Algorithm {
+            name: "Comb Sort",
+            key: "comb",
+            generate_steps: comb::steps,
+        },
+        Algorithm {
+            name: "Pancake Sort",
+            key: "pancake",
+            generate_steps: pancake::steps,
+        },
+        Algorithm {
+            name: "Gnome Sort",
+            key: "gnome",
+            generate_steps: gnome::steps,
+        },
+        Algorithm {
+            name: "Stalin Sort",
+            key: "stalin",
+            generate_steps: stalin::steps,
+        },
     ]
 }
 
@@ -105,6 +135,11 @@ mod tests {
         ("heap",      heap::steps),
         ("shell",     shell::steps),
         ("roulette",  roulette::steps),
+        ("cocktail",  cocktail::steps),
+        ("comb",      comb::steps),
+        ("pancake",   pancake::steps),
+        ("gnome",     gnome::steps),
+        ("stalin",    stalin::steps),
     ];
 
     #[test]
