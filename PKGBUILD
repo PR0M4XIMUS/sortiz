@@ -12,6 +12,10 @@ depends=('gcc-libs')
 makedepends=('cargo' 'git')
 provides=('sortiz')
 conflicts=('sortiz')
+# Disable debug flag injection: Arch's makepkg sets CARGO_PROFILE_RELEASE_DEBUG=2
+# and DEBUG_RUSTFLAGS="-C debuginfo=2 -C force-frame-pointers=yes" which trigger
+# a SIGSEGV in rustc 1.94.1 during LLVM codegen. options=(!debug) suppresses this.
+options=('!debug')
 source=("$pkgname::git+$url.git")
 sha256sums=('SKIP')
 
@@ -28,16 +32,12 @@ prepare() {
 build() {
     cd "$pkgname"
     export CARGO_TARGET_DIR=target
-    # Clear RUSTFLAGS: Arch's makepkg injects -C debuginfo=2 -C force-frame-pointers=yes
-    # which triggers a rustc 1.94.1 SIGSEGV during trait monomorphization.
-    export RUSTFLAGS=""
     cargo build --frozen --release
 }
 
 check() {
     cd "$pkgname"
     export CARGO_TARGET_DIR=target
-    export RUSTFLAGS=""
     cargo test --frozen
 }
 
