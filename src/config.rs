@@ -28,27 +28,26 @@ pub struct ColorsConfig {
     pub text: String,
 }
 
-fn default_bar() -> String { "#89b4fa".to_string() }
-fn default_comparing() -> String { "#fab387".to_string() }
-fn default_swapping() -> String { "#f38ba8".to_string() }
-fn default_sorted() -> String { "#a6e3a1".to_string() }
+fn default_bar()        -> String { "#89b4fa".to_string() }
+fn default_comparing()  -> String { "#fab387".to_string() }
+fn default_swapping()   -> String { "#f38ba8".to_string() }
+fn default_sorted()     -> String { "#a6e3a1".to_string() }
 fn default_background() -> String { "default".to_string() }
-fn default_text() -> String { "#cdd6f4".to_string() }
+fn default_text()       -> String { "#cdd6f4".to_string() }
 
 impl Default for ColorsConfig {
     fn default() -> Self {
         Self {
-            bar: default_bar(),
-            comparing: default_comparing(),
-            swapping: default_swapping(),
-            sorted: default_sorted(),
+            bar:        default_bar(),
+            comparing:  default_comparing(),
+            swapping:   default_swapping(),
+            sorted:     default_sorted(),
             background: default_background(),
-            text: default_text(),
+            text:       default_text(),
         }
     }
 }
 
-/// Resolved ratatui `Color` values ready for rendering.
 #[derive(Debug, Clone)]
 pub struct ParsedColors {
     pub bar: Color,
@@ -63,46 +62,46 @@ pub struct ParsedColors {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DisplayConfig {
-    /// "block" | "ascii" — if set, skips the startup menu entirely.
+    /// "block" | "ascii" — skips startup menu if set
     pub default_style: Option<String>,
-    /// Columns of space between bars. Clamped to 0–5 at parse time.
+    /// Columns between bars (0–5)
     pub gap: Option<u8>,
-    /// Show the algorithm name above the bars (default: true).
-    pub show_title: Option<bool>,
-    /// Show the step progress counter below the bars (default: true).
-    pub show_progress: Option<bool>,
+    pub show_title:      Option<bool>,
+    pub show_progress:   Option<bool>,
+    pub show_stats:      Option<bool>,
+    pub show_complexity: Option<bool>,
+    pub show_seed:       Option<bool>,
+    /// HSL rainbow coloring: bar color maps to value
+    pub rainbow:         Option<bool>,
 }
 
-/// Resolved display settings.
 #[derive(Debug, Clone)]
 pub struct ParsedDisplay {
-    /// `None` = show the startup menu; `Some(style)` = go straight to that style.
-    pub default_style: Option<BarStyle>,
-    pub gap: usize,
-    pub show_title: bool,
-    pub show_progress: bool,
+    pub default_style:   Option<BarStyle>,
+    pub gap:             usize,
+    pub show_title:      bool,
+    pub show_progress:   bool,
+    pub show_stats:      bool,
+    pub show_complexity: bool,
+    pub show_seed:       bool,
+    pub rainbow:         bool,
 }
 
 // ── Chars ─────────────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CharsConfig {
-    // Block mode
-    pub block_fill: Option<String>,
-
-    // ASCII mode — box-drawing characters for the outlined bars
+    pub block_fill:       Option<String>,
     pub ascii_top_left:   Option<String>,
     pub ascii_top_mid:    Option<String>,
     pub ascii_top_right:  Option<String>,
     pub ascii_body_left:  Option<String>,
     pub ascii_body_fill:  Option<String>,
     pub ascii_body_right: Option<String>,
-    /// Used when bar width is exactly 1 column.
     pub ascii_single_top:  Option<String>,
     pub ascii_single_body: Option<String>,
 }
 
-/// Resolved single characters for bar rendering.
 #[derive(Debug, Clone)]
 pub struct ParsedChars {
     pub block_fill:        char,
@@ -116,21 +115,48 @@ pub struct ParsedChars {
     pub ascii_single_body: char,
 }
 
+// ── Audio ─────────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AudioConfig {
+    /// Enable audio (default: true)
+    pub enabled: Option<bool>,
+    /// Volume 0.0–1.0 (default: 0.5)
+    pub volume: Option<f32>,
+    /// "auto" | "rodio" | "bel" | "silent"
+    pub backend: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ParsedAudio {
+    pub enabled: bool,
+    pub volume:  f32,
+    pub backend: AudioBackend,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum AudioBackend {
+    Auto,
+    Rodio,
+    Bel,
+    Silent,
+}
+
 // ── Top-level config ──────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Config {
     #[serde(default)]
-    pub colors: ColorsConfig,
+    pub colors:  ColorsConfig,
     #[serde(default)]
     pub display: DisplayConfig,
     #[serde(default)]
-    pub chars: CharsConfig,
+    pub chars:   CharsConfig,
+    #[serde(default)]
+    pub audio:   AudioConfig,
 }
 
 impl Config {
-    /// Load from the default XDG config path (~/.config/sortiz/config.toml),
-    /// falling back to built-in defaults if the file doesn't exist or is malformed.
     pub fn load() -> Self {
         if let Some(path) = config_path() {
             if path.exists() {
@@ -149,12 +175,12 @@ impl Config {
 
     pub fn colors(&self) -> ParsedColors {
         ParsedColors {
-            bar: parse_color(&self.colors.bar),
-            comparing: parse_color(&self.colors.comparing),
-            swapping: parse_color(&self.colors.swapping),
-            sorted: parse_color(&self.colors.sorted),
+            bar:        parse_color(&self.colors.bar),
+            comparing:  parse_color(&self.colors.comparing),
+            swapping:   parse_color(&self.colors.swapping),
+            sorted:     parse_color(&self.colors.sorted),
             background: parse_color(&self.colors.background),
-            text: parse_color(&self.colors.text),
+            text:       parse_color(&self.colors.text),
         }
     }
 
@@ -166,12 +192,16 @@ impl Config {
                 _ => None,
             }
         });
-        let gap = self.display.gap
-            .map(|g| (g as usize).clamp(0, 5))
-            .unwrap_or(1);
-        let show_title = self.display.show_title.unwrap_or(true);
-        let show_progress = self.display.show_progress.unwrap_or(true);
-        ParsedDisplay { default_style, gap, show_title, show_progress }
+        ParsedDisplay {
+            default_style,
+            gap:             self.display.gap.map(|g| (g as usize).clamp(0, 5)).unwrap_or(1),
+            show_title:      self.display.show_title.unwrap_or(true),
+            show_progress:   self.display.show_progress.unwrap_or(true),
+            show_stats:      self.display.show_stats.unwrap_or(true),
+            show_complexity: self.display.show_complexity.unwrap_or(true),
+            show_seed:       self.display.show_seed.unwrap_or(false),
+            rainbow:         self.display.rainbow.unwrap_or(false),
+        }
     }
 
     pub fn chars(&self) -> ParsedChars {
@@ -188,45 +218,90 @@ impl Config {
             ascii_single_body: first_char(&c.ascii_single_body, '│'),
         }
     }
+
+    pub fn audio(&self) -> ParsedAudio {
+        let backend = match self.audio.backend.as_deref().unwrap_or("auto").to_lowercase().as_str() {
+            "rodio"  => AudioBackend::Rodio,
+            "bel"    => AudioBackend::Bel,
+            "silent" => AudioBackend::Silent,
+            _        => AudioBackend::Auto,
+        };
+        ParsedAudio {
+            enabled: self.audio.enabled.unwrap_or(true),
+            volume:  self.audio.volume.unwrap_or(0.5).clamp(0.0, 1.0),
+            backend,
+        }
+    }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-fn config_path() -> Option<PathBuf> {
+pub fn config_path() -> Option<PathBuf> {
     dirs::config_dir().map(|d| d.join("sortiz").join("config.toml"))
 }
 
-/// Returns the first `char` of the string option, or `default` if absent/empty.
 fn first_char(opt: &Option<String>, default: char) -> char {
     opt.as_deref().and_then(|s| s.chars().next()).unwrap_or(default)
 }
 
 pub fn parse_color(s: &str) -> Color {
     let bytes = s.as_bytes();
-    if bytes.first() == Some(&b'#') && bytes.len() == 7 && bytes[1..].iter().all(|b| b.is_ascii_hexdigit()) {
-        let parse = |hi: u8, lo: u8| u8::from_str_radix(std::str::from_utf8(&[hi, lo]).unwrap_or("ff"), 16).unwrap_or(255);
-        let r = parse(bytes[1], bytes[2]);
-        let g = parse(bytes[3], bytes[4]);
-        let b = parse(bytes[5], bytes[6]);
-        return Color::Rgb(r, g, b);
+    if bytes.first() == Some(&b'#') && bytes.len() == 7
+        && bytes[1..].iter().all(|b| b.is_ascii_hexdigit())
+    {
+        let parse = |hi: u8, lo: u8| {
+            u8::from_str_radix(std::str::from_utf8(&[hi, lo]).unwrap_or("ff"), 16).unwrap_or(255)
+        };
+        return Color::Rgb(
+            parse(bytes[1], bytes[2]),
+            parse(bytes[3], bytes[4]),
+            parse(bytes[5], bytes[6]),
+        );
     }
     match s.to_lowercase().as_str() {
-        "black" => Color::Black,
-        "red" => Color::Red,
-        "green" => Color::Green,
-        "yellow" => Color::Yellow,
-        "blue" => Color::Blue,
-        "magenta" => Color::Magenta,
-        "cyan" => Color::Cyan,
-        "white" => Color::White,
+        "black"        => Color::Black,
+        "red"          => Color::Red,
+        "green"        => Color::Green,
+        "yellow"       => Color::Yellow,
+        "blue"         => Color::Blue,
+        "magenta"      => Color::Magenta,
+        "cyan"         => Color::Cyan,
+        "white"        => Color::White,
         "gray" | "grey" => Color::Gray,
         "darkgray" | "darkgrey" => Color::DarkGray,
-        "lightred" => Color::LightRed,
-        "lightgreen" => Color::LightGreen,
-        "lightyellow" => Color::LightYellow,
-        "lightblue" => Color::LightBlue,
+        "lightred"     => Color::LightRed,
+        "lightgreen"   => Color::LightGreen,
+        "lightyellow"  => Color::LightYellow,
+        "lightblue"    => Color::LightBlue,
         "lightmagenta" => Color::LightMagenta,
-        "lightcyan" => Color::LightCyan,
-        _ => Color::Reset,
+        "lightcyan"    => Color::LightCyan,
+        _              => Color::Reset,
     }
+}
+
+/// Convert HSL (h: 0–360, s: 0–1, l: 0–1) to ratatui Color::Rgb.
+pub fn hsl_to_color(h: f64, s: f64, l: f64) -> Color {
+    let c = (1.0 - (2.0 * l - 1.0).abs()) * s;
+    let x = c * (1.0 - ((h / 60.0) % 2.0 - 1.0).abs());
+    let m = l - c / 2.0;
+
+    let (r1, g1, b1) = if h < 60.0 {
+        (c, x, 0.0)
+    } else if h < 120.0 {
+        (x, c, 0.0)
+    } else if h < 180.0 {
+        (0.0, c, x)
+    } else if h < 240.0 {
+        (0.0, x, c)
+    } else if h < 300.0 {
+        (x, 0.0, c)
+    } else {
+        (c, 0.0, x)
+    };
+
+    Color::Rgb(
+        ((r1 + m) * 255.0) as u8,
+        ((g1 + m) * 255.0) as u8,
+        ((b1 + m) * 255.0) as u8,
+    )
 }

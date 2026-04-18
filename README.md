@@ -1,6 +1,6 @@
 # sortiz
 
-A terminal UI sorting algorithm visualizer with smooth animations, multiple algorithms, and full theme support via a simple TOML config file.
+A terminal UI sorting algorithm visualizer with smooth animations, 20 algorithms, audio feedback, race mode, and full theme support.
 
 ---
 
@@ -16,13 +16,19 @@ yay -S sortiz-git
 
 ### Build from source
 
-Requires [Rust](https://rustup.rs) (stable):
+Requires [Rust](https://rustup.rs) (stable) and `alsa-lib` (for audio):
 
 ```bash
 git clone https://github.com/PR0M4XIMUS/sortiz.git
 cd sortiz
 cargo build --release
 cp target/release/sortiz ~/.local/bin/
+```
+
+To build without audio (no ALSA dependency):
+
+```bash
+cargo build --release --no-default-features
 ```
 
 ---
@@ -35,42 +41,60 @@ sortiz [OPTIONS]
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-a, --algorithm <NAME>` | Algorithm to visualize | random |
+| `-a, --algorithm <KEY>` | Algorithm to visualize (see list below) | random |
 | `-n, --array-size <N>` | Number of elements (5–500) | `50` |
 | `-s, --speed <MS>` | Milliseconds per step (5–5000) | `50` |
 | `-c, --config <PATH>` | Path to a custom config file | `~/.config/sortiz/config.toml` |
 | `-l, --loop-mode` | Cycle through algorithms automatically | off |
+| `--seed <U64>` | Reproducible shuffle seed | random |
+| `--distribution <KIND>` | Initial array shape (see below) | `uniform` |
+| `--mute` | Start with audio muted | off |
+| `--list` | Print all algorithm keys and exit | — |
+| `--benchmark` | Headless step/comparison/swap counts for all algorithms | — |
+| `--race` | Race mode: all algorithms compete side-by-side | off |
+| `--demo` | Auto-demo: loop through all algorithms without interaction | off |
+| `--generate-completions <SHELL>` | Print shell completions (`bash`/`zsh`/`fish`/…) and exit | — |
 
-**Available algorithms:** `bubble` · `insertion` · `selection` · `merge` · `quick` · `heap` · `shell` · `roulette`
+**Distributions:** `uniform` · `reversed` · `nearly-sorted` · `few-unique` · `sawtooth` · `sorted` · `worst-case`
 
 **Examples:**
 
 ```bash
-sortiz                                  # random algorithm, default settings
-sortiz --algorithm quick -n 100 -s 25  # quick sort, 100 bars, fast
-sortiz --loop                           # cycle through all algorithms
-sortiz -c ~/my-theme.toml              # use a custom config file
+sortiz                                        # random algorithm, default settings
+sortiz --algorithm quick -n 100 -s 25        # quick sort, 100 bars, fast
+sortiz --loop-mode                            # cycle through all algorithms
+sortiz --seed 42 --distribution reversed     # reproducible reversed input
+sortiz --race -n 30                          # race mode, 30 elements
+sortiz --benchmark -n 200                    # headless comparison counts
+sortiz -c ~/my-theme.toml                    # use a custom config file
 ```
 
 ---
 
 ## Algorithms
 
-| Name | Key | How it works |
-|------|-----|--------------|
-| Bubble Sort | `bubble` | Repeatedly steps through the list comparing adjacent pairs and swapping them if out of order. Each pass bubbles the largest unsorted element to the end. |
-| Insertion Sort | `insertion` | Builds the sorted list one element at a time by taking each element and shifting it left until it's in the correct position. |
-| Selection Sort | `selection` | Finds the minimum element from the unsorted portion and swaps it into the next sorted position. |
-| Merge Sort | `merge` | Divides the array in half recursively, sorts each half, then merges them back together in order. |
-| Quick Sort | `quick` | Picks a pivot, partitions elements smaller/larger than the pivot to either side, then recurses on each partition. |
-| Heap Sort | `heap` | Builds a max-heap from the array, then repeatedly extracts the maximum to the end, shrinking the heap each time. |
-| Shell Sort | `shell` | A generalization of insertion sort that starts by sorting elements far apart, then progressively reduces the gap until it becomes a standard insertion sort. |
-| Roulette Sort | `roulette` | Goes index by index and spins (shuffles) the remaining unsorted elements randomly. After each spin it checks whether the right value landed in place — some spins fail for drama, but the wheel is secretly rigged so it always sorts in the end. |
-| Cocktail Shaker Sort | `cocktail` | Bidirectional bubble sort — sweeps left→right then right→left each pass, closing the sorted region from both ends simultaneously. |
-| Comb Sort | `comb` | Like bubble sort but starts comparing elements far apart (gap = n/1.3) and shrinks the gap each pass until it becomes a standard bubble-sort polish. |
-| Pancake Sort | `pancake` | Sorts by flipping prefixes: finds the largest unsorted element, flips the prefix to bring it to the front, then flips again to drop it into place — each flip animated bar by bar. |
-| Gnome Sort | `gnome` | A garden gnome moves forward until it finds an out-of-order pair, swaps them, then steps back one position to recheck — wandering erratically until everything is in order. |
-| Stalin Sort | `stalin` | Scans left to right and eliminates any element that isn't in order. Eliminated elements are quietly re-integrated at the end once the economy collapses. |
+| Name | Key | Complexity | Description |
+|------|-----|------------|-------------|
+| Bubble Sort | `bubble` | O(n²) | Repeatedly swaps adjacent out-of-order pairs until sorted. |
+| Insertion Sort | `insertion` | O(n²) | Builds sorted list by inserting each element leftward into place. |
+| Selection Sort | `selection` | O(n²) | Finds the minimum of the unsorted portion and swaps it into place. |
+| Merge Sort | `merge` | O(n log n) | Divides array in half, sorts each half, merges them in order. |
+| Quick Sort | `quick` | O(n log n) | Picks a pivot and partitions elements smaller/larger to each side. |
+| Heap Sort | `heap` | O(n log n) | Builds a max-heap, then extracts the maximum repeatedly to the end. |
+| Shell Sort | `shell` | O(n log² n) | Insertion sort with shrinking gap — sorts far-apart elements first. |
+| Roulette Sort | `roulette` | O(n²) | Spins the unsorted reel like a slot machine — rigged to always win. |
+| Cocktail Sort | `cocktail` | O(n²) | Bidirectional bubble sort — sweeps left→right then right→left. |
+| Comb Sort | `comb` | O(n log n) | Bubble sort with a shrinking gap to eliminate turtles early. |
+| Pancake Sort | `pancake` | O(n²) | Sorts by flipping prefixes to bring the max to the front, then drop. |
+| Gnome Sort | `gnome` | O(n²) | A gnome steps forward, swaps if out of order, then steps back. |
+| Stalin Sort | `stalin` | O(n) | Exiles non-conforming elements to the tail, then re-integrates them. |
+| Radix Sort | `radix` | O(nk) | Sorts digit by digit from least to most significant (LSD base-10). |
+| Cycle Sort | `cycle` | O(n²) | Minimizes writes by cycling each element to its final position. |
+| Bitonic Sort | `bitonic` | O(n log² n) | Comparator network — builds a bitonic sequence then merges it. |
+| Tim Sort | `tim` | O(n log n) | Hybrid of insertion sort on small runs + merge. Used in Python/Java. |
+| Intro Sort | `intro` | O(n log n) | Starts quicksort, switches to heapsort when depth limit exceeded. |
+| Sleep Sort | `sleep` | O(n + max) | Each element "sleeps" proportional to its value before joining output. |
+| Bogo Sort | `bogo` | O((n+1)!) | Randomly shuffles until sorted. Pray for a short run. |
 
 ---
 
@@ -79,11 +103,42 @@ sortiz -c ~/my-theme.toml              # use a custom config file
 | Key | Action |
 |-----|--------|
 | `Space` | Pause / Resume |
-| `↑` | Speed up |
-| `↓` | Slow down |
-| `r` | Restart current sort with a new array |
-| `n` | Skip to next algorithm |
-| `q` / `Esc` | Quit |
+| `Left` / `Right` | Step back / forward (when paused) |
+| `Shift+Left` / `Shift+Right` | Jump back / forward 10 steps (when paused) |
+| `↑` / `↓` | Speed up / slow down (halve or double delay) |
+| `+` / `-` | Fine speed adjust (±10 ms) |
+| `r` | Restart with the same seed |
+| `R` | Restart with a new random shuffle |
+| `n` | Jump to a random different algorithm |
+| `[` / `]` | Cycle algorithms backward / forward |
+| `m` | Toggle mute |
+| `b` | Toggle rainbow bar coloring |
+| `s` | Toggle stats row (comparisons / swaps) |
+| `t` | Toggle title / complexity row |
+| `?` / `h` | Help overlay |
+| `q` / `Esc` / `Ctrl+C` | Quit |
+
+**Startup menu:** `↑↓` navigate, `Enter` confirm, `1`/`2` select Block/ASCII directly, `q`/`Esc` quit.
+
+---
+
+## Audio
+
+sortiz plays tones as it sorts — pitch maps to bar value, so higher elements sound higher.
+
+- On sort completion a higher chime plays.
+- Press `m` to toggle mute at any time, or start muted with `--mute`.
+- Requires ALSA (`alsa-lib`) on Linux. Falls back to a terminal bell (`\x07`) if audio init fails.
+- Disable at compile time with `--no-default-features` (no ALSA dependency).
+
+Configure in `~/.config/sortiz/config.toml`:
+
+```toml
+[audio]
+enabled = true      # false to disable completely
+volume  = 0.5       # 0.0–1.0
+backend = "auto"    # "auto" | "rodio" | "bel" | "silent"
+```
 
 ---
 
@@ -115,11 +170,28 @@ text       = "#cdd6f4"   # title and status text
 # Gap between bars in columns (0–5, default 1)
 # gap = 1
 
-# Show the algorithm name above the bars (default: true)
+# Show the algorithm name and complexity above the bars (default: true)
 # show_title = true
+
+# Show comparison/swap stats row (default: true)
+# show_stats = true
 
 # Show the step progress counter below the bars (default: true)
 # show_progress = true
+
+# Show complexity in title row (default: true)
+# show_complexity = true
+
+# Show the random seed value in the title row (default: false)
+# show_seed = false
+
+# Rainbow coloring: bar color maps to value (default: false)
+# rainbow = false
+
+[audio]
+# enabled = true      # false to silence completely
+# volume  = 0.5       # 0.0–1.0
+# backend = "auto"    # "auto" | "rodio" | "bel" | "silent"
 
 [chars]
 # Only the first character of each value is used.
@@ -134,8 +206,8 @@ text       = "#cdd6f4"   # title and status text
 # ascii_body_left  = "║"
 # ascii_body_fill  = "█"
 # ascii_body_right = "║"
-# ascii_single_top  = "╤"   # single-column bar top
-# ascii_single_body = "│"   # single-column bar body
+# ascii_single_top  = "╤"
+# ascii_single_body = "│"
 ```
 
 ---
@@ -148,8 +220,6 @@ Ready-made theme files live in the [`themes/`](themes/) directory. To apply one:
 mkdir -p ~/.config/sortiz
 cp themes/catppuccin-mocha.toml ~/.config/sortiz/config.toml
 ```
-
-Or paste a `[colors]` block directly into your existing config.
 
 <details>
 <summary><strong>Catppuccin Mocha</strong></summary>
@@ -240,7 +310,22 @@ default_style = "block"
 block_fill = "#"
 ```
 
-Any single character works — letters, symbols, Unicode, whatever your terminal supports.
+---
+
+## Shell Completions
+
+Generate and install completions for your shell:
+
+```bash
+# bash
+sortiz --generate-completions bash >> ~/.bash_completion
+
+# zsh
+sortiz --generate-completions zsh > ~/.zfunc/_sortiz
+
+# fish
+sortiz --generate-completions fish > ~/.config/fish/completions/sortiz.fish
+```
 
 ---
 
@@ -250,22 +335,31 @@ Any single character works — letters, symbols, Unicode, whatever your terminal
    ```rust
    pub fn steps(data: &[usize]) -> Vec<SortStep>
    ```
-2. Register it in `src/algorithms/mod.rs` inside `all_algorithms()`:
-   ```rust
-   Algorithm { name: "My Sort", key: "mysort", generate_steps: my_sort::steps }
-   ```
+2. Add `pub mod <name>;` in `src/algorithms/mod.rs`
+3. Add an `Algorithm { name, key, complexity, description, generate_steps }` entry to `all_algorithms()`
+4. Add `("<key>", <name>::steps)` to the `ALGOS` const in the test module
 
-That's it — the CLI flag, loop mode, and rendering all pick it up automatically.
+The CLI flag, loop mode, race mode, and rendering all pick it up automatically.
 
 ---
 
 ## Recent Changes
 
-- **Roulette Sort** — a new novelty algorithm that spins (shuffles) the remaining unsorted elements at each position. The wheel is secretly rigged: it fails dramatically a few times before guaranteeing a win, so it always finishes but keeps you guessing.
-- **Theme files** — ready-made Catppuccin Mocha, Gruvbox Dark, and Nord configs in the `themes/` directory, ready to copy into `~/.config/sortiz/`.
-- **Live resize** — the visualizer now reacts to terminal resize events instantly, making it fully compatible with tiling window managers (Hyprland, i3, sway, etc.).
-- **Centered bars** — leftover horizontal space is distributed equally on both sides.
-- **Hide UI elements** — `show_title` and `show_progress` config options let you strip the algorithm label and/or step counter.
+- **20 algorithms** — added Radix, Cycle, Bitonic, Tim, Intro, Sleep, and Bogo sort
+- **Audio** — real-time tone synthesis via rodio; pitch maps to bar value; BEL fallback; `m` to mute
+- **Race mode** (`--race`) — all algorithms compete in a grid, same starting array
+- **Step scrubbing** — pause and step frame-by-frame with `Left`/`Right`; jump 10 with `Shift`
+- **Stats row** — live comparisons and swap counts per step
+- **Help overlay** (`?`) — in-app keybinding reference
+- **Post-sort summary** — comparisons, swaps, steps, and wall time on completion
+- **Sequential algorithm cycling** (`[`/`]`) — browse algorithms in order
+- **Fine speed control** (`+`/`-`) — ±10 ms adjustments alongside the halve/double `↑`/`↓`
+- **Rainbow bars** (`b`) — HSL coloring by value
+- **Reproducible seeds** (`--seed`) — same input every run
+- **Distributions** (`--distribution`) — reversed, nearly-sorted, few-unique, sawtooth, worst-case
+- **Benchmark mode** (`--benchmark`) — headless step/comparison/swap stats for all algorithms
+- **Shell completions** (`--generate-completions`) — bash, zsh, fish, powershell, elvish
+- **Theme-aware startup menu** — menu respects your `[colors]` config
 
 ---
 

@@ -34,8 +34,32 @@ text       = "#cdd6f4"   # title and status bar text   (catppuccin text)
 # Show the algorithm name above the bars. Default: true.
 # show_title = true
 
+# Show comparison/swap stats row. Default: true.
+# show_stats = true
+
 # Show the step counter below the bars. Default: true.
 # show_progress = true
+
+# Show complexity next to the algorithm name. Default: true.
+# show_complexity = true
+
+# Show the random seed value in the title row. Default: false.
+# show_seed = false
+
+# Rainbow coloring: bar hue maps to value position. Default: false.
+# rainbow = false
+
+# ── Audio ─────────────────────────────────────────────────────────────────────
+# Audio requires ALSA (alsa-lib) on Linux.
+# Build with --no-default-features for a silent binary with no ALSA dependency.
+
+[audio]
+# enabled = true      # false to disable completely (same as --mute at startup)
+# volume  = 0.5       # 0.0–1.0
+# backend = "auto"    # "auto" | "rodio" | "bel" | "silent"
+#                     # auto: try rodio first, fall back to terminal bell, then silent
+#                     # bel:  only emit \x07 on sort completion (no per-step tone)
+#                     # silent: no audio output at all
 
 # ── Bar characters ────────────────────────────────────────────────────────────
 # Only the first character of each value is used.

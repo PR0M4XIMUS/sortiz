@@ -13,15 +13,22 @@ categories = ["command-line-utilities", "visualization"]
 name = "sortiz"
 path = "src/main.rs"
 
+[features]
+default = ["audio"]
+audio = ["dep:rodio"]
+
 [dependencies]
 ratatui = "0.29"
 crossterm = "0.28"
 clap = { version = "4", features = ["derive"] }
+clap_complete = "4"
+clap_mangen = "0.2"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 rand = "0.8"
 dirs = "5"
 anyhow = "1"
+rodio = { version = "0.17", optional = true, default-features = false }
 
 [profile.release]
 opt-level = 2
