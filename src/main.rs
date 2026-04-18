@@ -368,14 +368,16 @@ fn run_benchmark(size: usize, seed: Option<u64>, dist: Distribution) -> anyhow::
     let data = app::build_array(size, effective_seed, dist, "uniform");
     for algo in algorithms::all_algorithms() {
         let steps = (algo.generate_steps)(&data);
-        let last = steps.last().unwrap();
-        println!(
-            "{:<20} {:>8} {:>12} {:>8}",
-            algo.name,
-            steps.len(),
-            last.comparisons,
-            last.swaps,
-        );
+        match steps.last() {
+            Some(last) => println!(
+                "{:<20} {:>8} {:>12} {:>8}",
+                algo.name,
+                steps.len(),
+                last.comparisons,
+                last.swaps,
+            ),
+            None => eprintln!("{:<20} produced no steps (skipped)", algo.name),
+        }
     }
     Ok(())
 }

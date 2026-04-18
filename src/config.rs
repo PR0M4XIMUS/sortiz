@@ -168,8 +168,17 @@ impl Config {
 
     pub fn load_from(path: &Path) -> Self {
         match std::fs::read_to_string(path) {
-            Ok(content) => toml::from_str::<Config>(&content).unwrap_or_default(),
-            Err(_) => Config::default(),
+            Ok(content) => match toml::from_str::<Config>(&content) {
+                Ok(cfg) => cfg,
+                Err(e) => {
+                    eprintln!("Warning: config parse error in {}: {e}", path.display());
+                    Config::default()
+                }
+            },
+            Err(e) => {
+                eprintln!("Warning: could not read config {}: {e}", path.display());
+                Config::default()
+            }
         }
     }
 
@@ -249,8 +258,9 @@ pub fn parse_color(s: &str) -> Color {
     if bytes.first() == Some(&b'#') && bytes.len() == 7
         && bytes[1..].iter().all(|b| b.is_ascii_hexdigit())
     {
-        let parse = |hi: u8, lo: u8| {
-            u8::from_str_radix(std::str::from_utf8(&[hi, lo]).unwrap_or("ff"), 16).unwrap_or(255)
+        let parse = |hi: u8, lo: u8| -> u8 {
+            let nibble = |b: u8| if b <= b'9' { b - b'0' } else { (b | 32) - b'a' + 10 };
+            nibble(hi) * 16 + nibble(lo)
         };
         return Color::Rgb(
             parse(bytes[1], bytes[2]),
