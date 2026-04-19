@@ -300,10 +300,12 @@ fn run(
             app.advance();
             last_step = Instant::now();
 
-            // Show summary overlay when done (only once per run)
+            // Show summary overlay when done (only once per run); skip in loop/demo mode
             if app.is_done() && app.sort_elapsed_ms.is_some() && !app.summary_shown {
-                app.show_summary = true;
                 app.summary_shown = true;
+                if !app.loop_mode {
+                    app.show_summary = true;
+                }
             }
         }
     }
